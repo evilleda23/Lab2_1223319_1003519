@@ -10,6 +10,7 @@ namespace ClasesGenericas.Interfaces
     public abstract class EstructuraNoLineal<T>
     {
         protected abstract void Insert(T value, Nodo<T> position, Comparison<T> comparer);
-        protected abstract void Delete(T value, Nodo<T> position, Comparison<T> comparer);
+        public abstract void Delete(T value, Comparison<T> comparer);
+        protected abstract Nodo<T> Search(T value, Nodo<T> position, Comparison<T> comparer);
     }
 }

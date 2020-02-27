@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using Lab3_1223319_1003519.Models;
+using ClasesGenericas.Estructuras;
 
 namespace Lab3_1223319_1003519.Helpers
 {
@@ -19,6 +20,8 @@ namespace Lab3_1223319_1003519.Helpers
             }
         }
 
-        public List<Farmaco> Indice = new List<Farmaco>();
+        public Arbol<Farmaco> Indice = new Arbol<Farmaco>();
+        public List<Pedido> Pedidos = new List<Pedido>();
+        public bool PrimeraSesion = true;
     }
 }
