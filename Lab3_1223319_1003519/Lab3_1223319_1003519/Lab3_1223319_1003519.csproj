@@ -127,6 +127,7 @@
     </Compile>
     <Compile Include="Helpers\Storage.cs" />
     <Compile Include="Models\Farmaco.cs" />
+    <Compile Include="Models\InfoFarmaco.cs" />
     <Compile Include="Models\Pedido.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

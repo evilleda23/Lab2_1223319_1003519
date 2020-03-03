@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-
 namespace Lab3_1223319_1003519.Models
 {
     public class Pedido
@@ -11,5 +10,6 @@ namespace Lab3_1223319_1003519.Models
         public string Direccion { get; set; }
         public string Nit { get; set; }
         public string Productos { get; set; }
+        //public InfoFarmaco Producto { get; set; }
     }
 }

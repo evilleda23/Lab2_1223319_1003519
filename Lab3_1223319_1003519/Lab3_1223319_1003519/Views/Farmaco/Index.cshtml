@@ -6,11 +6,23 @@
 
 <h2>Tu salud en mis manos</h2>
 
+@using (Html.BeginForm("AbrirArchivo",
+                        "Farmaco",
+                        FormMethod.Post,
+                        new { enctype = "multipart/form-data" }))
+{
+
+    <input type="file" name="file" value="Seleccionar Archivo" id="file" />
+    <input type="submit" value="Abrir" />
+
+}
+
 @using (Html.BeginForm())
 {
     <input type="text" class="form-control" name="search" placeholder="Buscar farmaco" />
     <button type="submit">Buscar</button>
 }
+
 <table class="table">
     <tr>
         <th>
@@ -32,13 +44,20 @@
                 @Html.DisplayFor(modelItem => item.Nombre)
             </td>
             <td>
-                //  @Html.ActionLink("Agregar al carrito", "AgregarProducto", new { id = item.ID })
+                @Html.ActionLink("Agregar al carrito", "AgregarProducto", new { id = item.ID })|
+                @Html.ActionLink("Reabastecer", "Reabastecer", new { id = item.ID })
             </td>
         </tr>
     }
 
 </table>
 <br />
-<p>
-    @Html.ActionLink("Reabastecer", "Reabastecer")
-</p>
+@using (Html.BeginForm("GuardarArchivo",
+                        "Farmaco",
+                        FormMethod.Post,
+                        new { enctype = "multipart/form-data" }))
+{
+
+    <input type="file" name="file" value="Seleccionar Archivo" id="file" />
+    <input type="submit" value="Guardar" />
+}

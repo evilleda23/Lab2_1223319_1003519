@@ -69,14 +69,15 @@ namespace ClasesGenericas.Estructuras
             try
             {
                 Nodo<T> aux = Search(value, Raiz, comparer);
-                if (aux == Raiz)
-                    aux.Padre = new Nodo<T>();
                 if (aux.Derecha == null && aux.Izquierda == null)
                 {
-                    if (aux.Padre.Izquierda == aux)
-                        aux.Padre.Izquierda = null;
-                    else
-                        aux.Padre.Derecha = null;
+                    if (aux.Padre != null)
+                    {
+                        if (aux.Padre.Izquierda == aux)
+                            aux.Padre.Izquierda = null;
+                        else
+                            aux.Padre.Derecha = null;
+                    }
                     if (aux == Raiz)
                         Raiz = null;
                 }
@@ -88,13 +89,16 @@ namespace ClasesGenericas.Estructuras
                         reemplazo = reemplazo.Derecha;
                     }
                     Delete(reemplazo.Valor, comparer);
-                    if (aux.Padre.Izquierda == aux)
+                    if (aux.Padre != null)
                     {
-                        aux.Padre.Izquierda = reemplazo;
-                    }
-                    else
-                    {
-                        aux.Padre.Derecha = reemplazo;
+                        if (aux.Padre.Izquierda == aux)
+                        {
+                            aux.Padre.Izquierda = reemplazo;
+                        }
+                        else
+                        {
+                            aux.Padre.Derecha = reemplazo;
+                        }
                     }
                     reemplazo.Padre = aux.Padre;
                     aux.Izquierda.Padre = reemplazo;
@@ -106,31 +110,35 @@ namespace ClasesGenericas.Estructuras
                 }
                 else
                 {
-                    if (aux.Padre.Izquierda == aux)
+                    if (aux.Padre != null)
                     {
-                        if (aux.Izquierda != null)
+                        if (aux.Padre.Izquierda == aux)
                         {
-                            aux.Padre.Izquierda = aux.Izquierda;
-                            aux.Izquierda.Padre = aux.Padre;
+                            if (aux.Izquierda != null)
+                            {
+                                aux.Padre.Izquierda = aux.Izquierda;
+                                aux.Izquierda.Padre = aux.Padre;
+                            }
+                            else
+                            {
+                                aux.Padre.Izquierda = aux.Derecha;
+                                aux.Derecha.Padre = aux.Padre;
+                            }
                         }
                         else
                         {
-                            aux.Padre.Izquierda = aux.Derecha;
-                            aux.Derecha.Padre = aux.Padre;
+                            if (aux.Izquierda != null)
+                            {
+                                aux.Padre.Derecha = aux.Izquierda;
+                                aux.Izquierda.Padre = aux.Padre;
+                            }
+                            else
+                            {
+                                aux.Padre.Derecha = aux.Derecha;
+                                aux.Derecha.Padre = aux.Padre;
+                            }
                         }
-                    }
-                    else
-                    {
-                        if (aux.Izquierda != null)
-                        {
-                            aux.Padre.Derecha = aux.Izquierda;
-                            aux.Izquierda.Padre = aux.Padre;
-                        }
-                        else
-                        {
-                            aux.Padre.Derecha = aux.Derecha;
-                            aux.Derecha.Padre = aux.Padre;
-                        }
+
                     }
                     if (aux == Raiz)
                     {
