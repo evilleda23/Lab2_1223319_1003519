@@ -168,7 +168,9 @@
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Farmaco\Index.cshtml" />
-    <Content Include="Views\Farmaco\Pedido.cshtml" />
+    <Content Include="Views\Farmaco\Reabastecer.cshtml" />
+    <Content Include="Views\Farmaco\Resultados.cshtml" />
+    <Content Include="Views\Farmaco\AgregarProducto.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

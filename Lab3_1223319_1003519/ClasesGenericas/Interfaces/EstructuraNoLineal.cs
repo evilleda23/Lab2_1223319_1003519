@@ -11,6 +11,7 @@ namespace ClasesGenericas.Interfaces
     {
         protected abstract void Insert(T value, Nodo<T> position, Comparison<T> comparer);
         public abstract void Delete(T value, Comparison<T> comparer);
+        public abstract T Remove(T value, Comparison<T> comparer);
         protected abstract Nodo<T> Search(T value, Nodo<T> position, Comparison<T> comparer);
     }
 }

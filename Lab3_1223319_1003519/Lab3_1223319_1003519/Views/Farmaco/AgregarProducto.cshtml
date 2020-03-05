@@ -1,0 +1,68 @@
+﻿@model Lab3_1223319_1003519.Models.InfoFarmaco
+
+@{
+    ViewBag.Title = "AgregarProducto";
+}
+
+<h2>Agregar al Carrito</h2>
+
+<div>
+    <h4>Informacion del Farmaco</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Nombre)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Nombre)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Descripcion)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Descripcion)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Productora)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Productora)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Precio)
+        </dt>
+
+        <dd>
+            $@Html.DisplayFor(model => model.Precio)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Existencia)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Existencia)
+        </dd>
+
+    </dl>
+</div>
+<br />
+<h3>Pedir este producto</h3>
+@using (Html.BeginForm("AgregarProducto",
+                        "Farmaco",
+                        FormMethod.Post,
+                        new { enctype = "multipart/form-data" }))
+{
+    <p>Cantidad: </p><input type="text" class="form-control" name="cant" placeholder="Cantidad" />
+    <button type="submit">Agregar al carrito</button>
+}
+<br />
+<p>
+    @Html.ActionLink("Back to List", "Index")
+</p>

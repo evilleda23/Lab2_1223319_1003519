@@ -8,17 +8,17 @@ using ClasesGenericas.Interfaces;
 
 namespace ClasesGenericas.Estructuras
 {
-    public class Arbol<T> : EstructuraNoLineal<T>, IEnumerable<T>
+    public class Arbol<IComparable> : EstructuraNoLineal<IComparable>, IEnumerable<IComparable>
     {
-        private Nodo<T> Raiz { get; set; }
+        private Nodo<IComparable> Raiz { get; set; }
         public int Count { get; set; } = 0;
 
-        public void Add(T value, Comparison<T> comparer)
+        public void Add(IComparable value, Comparison<IComparable> comparer)
         {
             Count++;
             if (Raiz == null)
             {
-                Raiz = new Nodo<T>
+                Raiz = new Nodo<IComparable>
                 {
                     Valor = value,
                     Padre = null,
@@ -30,13 +30,13 @@ namespace ClasesGenericas.Estructuras
                 Insert(value, Raiz, comparer);
         }
 
-        protected override void Insert(T value, Nodo<T> position, Comparison<T> comparer)
+        protected override void Insert(IComparable value, Nodo<IComparable> position, Comparison<IComparable> comparer)
         {
             if (comparer.Invoke(value, position.Valor) > 0)
             {
                 if (position.Derecha == null)
                 {
-                    position.Derecha = new Nodo<T>
+                    position.Derecha = new Nodo<IComparable>
                     {
                         Valor = value,
                         Padre = position,
@@ -51,7 +51,7 @@ namespace ClasesGenericas.Estructuras
             {
                 if (position.Izquierda == null)
                 {
-                    position.Izquierda = new Nodo<T>
+                    position.Izquierda = new Nodo<IComparable>
                     {
                         Valor = value,
                         Padre = position,
@@ -64,11 +64,11 @@ namespace ClasesGenericas.Estructuras
             }
         }
 
-        public override void Delete(T value, Comparison<T> comparer)
+        public override IComparable Remove(IComparable value, Comparison<IComparable> comparer)
         {
             try
             {
-                Nodo<T> aux = Search(value, Raiz, comparer);
+                Nodo<IComparable> aux = Search(value, Raiz, comparer);
                 if (aux.Derecha == null && aux.Izquierda == null)
                 {
                     if (aux.Padre != null)
@@ -83,7 +83,7 @@ namespace ClasesGenericas.Estructuras
                 }
                 else if (aux.Derecha != null && aux.Izquierda != null)
                 {
-                    Nodo<T> reemplazo = aux.Izquierda;
+                    Nodo<IComparable> reemplazo = aux.Izquierda;
                     while (reemplazo.Derecha != null)
                     {
                         reemplazo = reemplazo.Derecha;
@@ -140,6 +140,17 @@ namespace ClasesGenericas.Estructuras
                         }
 
                     }
+                    else
+                    {
+                        if (aux.Izquierda != null)
+                        {
+                            aux.Izquierda.Padre = aux.Padre;
+                        }
+                        else
+                        {
+                            aux.Derecha.Padre = aux.Padre;
+                        }
+                    }
                     if (aux == Raiz)
                     {
                         if (aux.Izquierda != null)
@@ -153,22 +164,29 @@ namespace ClasesGenericas.Estructuras
                     }
                 }
                 Count--;
+                return aux.Valor;
             }
             catch
             {
+                return default(IComparable);
             }
         }
 
-        public T Search(T value, Comparison<T> comparer)
+        public override void Delete(IComparable value, Comparison<IComparable> comparer)
         {
-            Nodo<T> result = Search(value, Raiz, comparer);
+            Remove(value, comparer);
+        }
+
+        public IComparable Search(IComparable value, Comparison<IComparable> comparer)
+        {
+            Nodo<IComparable> result = Search(value, Raiz, comparer);
             if (result != null)
                 return result.Valor;
             else
-                return default(T);
+                return default(IComparable);
         }
 
-        protected override Nodo<T> Search(T value, Nodo<T> position, Comparison<T> comparer)
+        protected override Nodo<IComparable> Search(IComparable value, Nodo<IComparable> position, Comparison<IComparable> comparer)
         {
             if (position != null)
             {
@@ -183,7 +201,7 @@ namespace ClasesGenericas.Estructuras
                 }
             }
             else
-                return new Nodo<T>();
+                return new Nodo<IComparable>();
         }
 
         public void Clear()
@@ -192,7 +210,7 @@ namespace ClasesGenericas.Estructuras
             Count = 0;
         }
 
-        private void Inorden(Nodo<T> position, List<T> recorrido)
+        private void Inorden(Nodo<IComparable> position, List<IComparable> recorrido)
         {
             if (position.Izquierda != null)
                 Inorden(position.Izquierda, recorrido);
@@ -201,12 +219,15 @@ namespace ClasesGenericas.Estructuras
                 Inorden(position.Derecha, recorrido);
         }
 
-        public IEnumerator<T> GetEnumerator()
+        public IEnumerator<IComparable> GetEnumerator()
         {
-            List<T> recorrido = new List<T>();
+            List<IComparable> recorrido = new List<IComparable>();
             if (Raiz != null)
+            {
                 Inorden(Raiz, recorrido);
-            while(recorrido.Count > 0)
+                recorrido.Sort();
+            }
+            while (recorrido.Count > 0)
             {
                 yield return recorrido[0];
                 recorrido.Remove(recorrido[0]);

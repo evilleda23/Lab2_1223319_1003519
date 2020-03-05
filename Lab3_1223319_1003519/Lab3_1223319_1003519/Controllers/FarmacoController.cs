@@ -15,11 +15,16 @@ namespace Lab3_1223319_1003519.Controllers
         // GET: Farmaco
         public ActionResult Index()
         {
-            //if (Storage.Instance.PrimeraSesion)
-            //{
-            //    CargarArchivo();
-            //    Storage.Instance.PrimeraSesion = false;
-            //}
+            if (Storage.Instance.PrimeraSesion)
+            {
+                //CargarArchivo();
+                Storage.Instance.dir = Server.MapPath("/Farmacos.csv");
+                Storage.Instance.dir = Storage.Instance.dir.Replace("\\", "//");
+                Storage.Instance.dir = Storage.Instance.dir.Insert(Storage.Instance.dir.IndexOf(':') + 1, " ");
+                Storage.Instance.dir = Storage.Instance.dir.Remove(Storage.Instance.dir.IndexOf("//Lab3_1223319_1003519"), 22);
+                AbrirArchivo();
+                Storage.Instance.PrimeraSesion = false;
+            }
             return View(Storage.Instance.Indice);
         }
 
@@ -32,7 +37,7 @@ namespace Lab3_1223319_1003519.Controllers
             {
                 Storage.Instance.Indice.Search(new Farmaco { Nombre = name }, Farmaco.CompararNombre)
             };
-            return View(resultados);
+            return View("Resultados", resultados);
 
         }
 
@@ -110,7 +115,17 @@ namespace Lab3_1223319_1003519.Controllers
 
         public ActionResult AgregarProducto(int id)
         {
-            return View("Pedido");
+            string[] datos = Storage.Instance.ListadoFarmacos[id - 1].Split(';');
+            InfoFarmaco nuevo = new InfoFarmaco
+            {
+                ID = Int32.Parse(datos[0]),
+                Nombre = datos[1],
+                Descripcion = datos[2],
+                Productora = datos[3],
+                Precio = double.Parse(datos[4]),
+                Existencia = int.Parse(datos[5])
+            };
+            return View("AgregarProducto", nuevo);
         }
         [HttpPost]
         public ActionResult AgregarProducto(int id, FormCollection collection)
@@ -136,7 +151,7 @@ namespace Lab3_1223319_1003519.Controllers
                             texto = texto.Remove(0, texto.IndexOf(";") + 1);
                             nuevo.Descripcion = texto.Substring(0, texto.IndexOf(";"));
                             texto = texto.Remove(0, texto.IndexOf(";") + 1);
-                            nuevo.CasaProductora = texto.Substring(0, texto.IndexOf(";"));
+                            nuevo.Productora = texto.Substring(0, texto.IndexOf(";"));
                             texto = texto.Remove(0, texto.IndexOf(";") + 1);
                             nuevo.Precio = double.Parse(texto.Substring(0, texto.IndexOf(";")));
                             texto = texto.Remove(0, texto.IndexOf(";") + 1);
@@ -153,35 +168,27 @@ namespace Lab3_1223319_1003519.Controllers
             }
             if (cant < nuevo.Existencia)
                 nuevo.Existencia -= cant;
-
             total = nuevo.Precio * cant;
             return View("Pedido");
         }
+
+        public ActionResult MostrarReabastecer()
+        {
+            return View("Reabastecer", Storage.Instance.SinExistencias);
+        }
+
         public ActionResult Reabastecer(int id)
         {
-            string[] texto = Storage.Instance.Farmacos.Split('\r', '\n');
             try
             {
-                for (int i = 0; i < texto.Length; i++)
+                for (int i = 0; i < Storage.Instance.ListadoFarmacos.Length; i++)
                 {
-                    if (texto[i] != "")
+                    if (Storage.Instance.ListadoFarmacos[i] != "")
                     {
-                        if (id == Int32.Parse(texto[i].Substring(0, 1)))
+                        if (id == Int32.Parse(Storage.Instance.ListadoFarmacos[i].Substring(0, 1)))
                         {
-                            string aux = texto[i];
+                            string aux = Storage.Instance.ListadoFarmacos[i];
                             string aux2 = "";
-                            //InfoFarmaco nuevo = new InfoFarmaco();
-                            //nuevo.ID = Int32.Parse(texto[i].Substring(0, texto[i].IndexOf(";")));
-                            //texto[i] = texto[i].Remove(0, texto[i].IndexOf(";") + 1);
-                            //nuevo.Nombre = texto[i].Substring(0, texto[i].IndexOf(";"));
-                            //texto[i] = texto[i].Remove(0, texto[i].IndexOf(";") + 1);
-                            //nuevo.Descripcion = texto[i].Substring(0, texto[i].IndexOf(";"));
-                            //texto[i] = texto[i].Remove(0, texto[i].IndexOf(";") + 1);
-                            //nuevo.CasaProductora = texto[i].Substring(0, texto[i].IndexOf(";"));
-                            //texto[i] = texto[i].Remove(0, texto[i].IndexOf(";") + 1);
-                            //nuevo.Precio = double.Parse(texto[i].Substring(0, texto[i].IndexOf(";")));
-                            //texto[i] = texto[i].Remove(0, texto[i].IndexOf(";") + 1);
-                            //nuevo.Existencia = int.Parse(texto[i]);
                             while (aux.Contains(";"))
                             {
                                 aux2 += aux.Substring(0, aux.IndexOf(";") + 1);
@@ -190,13 +197,20 @@ namespace Lab3_1223319_1003519.Controllers
                             if (Int32.Parse(aux) == 0)
                             {
                                 Random rnd = new Random();
-                                aux2 += rnd.Next(1, 15).ToString();
-                                texto[i] = aux2;
+                                int nuevaCantidad = rnd.Next(1, 16);
+                                aux2 += nuevaCantidad.ToString();
+                                Storage.Instance.ListadoFarmacos[i] = aux2;
+                                Farmaco nuevo = new Farmaco();
+                                aux2 = aux2.Remove(0, aux2.IndexOf(";") + 1);
+                                nuevo.Nombre = aux2.Substring(0, aux2.IndexOf(";"));
+                                Farmaco temporal = Storage.Instance.SinExistencias.Remove(nuevo, Farmaco.CompararNombre);
+                                temporal.Cantidad = nuevaCantidad;
+                                Storage.Instance.Indice.Add(temporal, Farmaco.CompararNombre);
                             }
                         }
                     }
                 }
-                Sobreescribir(texto);
+                Sobreescribir();
             }
             catch
             {
@@ -208,65 +222,71 @@ namespace Lab3_1223319_1003519.Controllers
          
 
         //Se debe cambiar la ruta del archivo para que no ocurran errores en la carga.
-        [HttpPost]
-        public ActionResult AbrirArchivo(HttpPostedFileBase file)
+        public void AbrirArchivo()
         {
             try
             {
-                using (StreamReader lector = new StreamReader(file.InputStream))
+                using (StreamReader lector = new StreamReader(Storage.Instance.dir))
                 {
                     Storage.Instance.Farmacos = lector.ReadToEnd();
                 }
-                string[] texto = Storage.Instance.Farmacos.Split('\r', '\n');
+                Storage.Instance.ListadoFarmacos = Storage.Instance.Farmacos.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                string[] text = (string[])Storage.Instance.ListadoFarmacos.Clone();
                 Storage.Instance.Indice.Clear();
-                for (int i = 0; i < texto.Length; i++)
+                for (int i = 0; i < text.Length; i++)
                 {
-                    if (texto[i] != "")
+                    if (text[i] != "")
                     {
                         Farmaco nuevo = new Farmaco
                         {
-                            ID = Int32.Parse(texto[i].Substring(0, texto[i].IndexOf(";")))
+                            ID = Int32.Parse(text[i].Substring(0, text[i].IndexOf(";")))
                         };
-                        texto[i] = texto[i].Remove(0, texto[i].IndexOf(";") + 1);
-                        nuevo.Nombre = texto[i].Substring(0, texto[i].IndexOf(";"));
-                        Storage.Instance.Indice.Add(nuevo, Farmaco.CompararNombre);
+                        text[i] = text[i].Remove(0, text[i].IndexOf(";") + 1);
+                        nuevo.Nombre = text[i].Substring(0, text[i].IndexOf(";"));
+                        while (text[i].IndexOf(';') >= 0)
+                        {
+                            text[i] = text[i].Remove(0, text[i].IndexOf(';') + 1);
+                        }
+                        nuevo.Cantidad = Int32.Parse(text[i]);
+                        if (nuevo.Cantidad > 0)
+                            Storage.Instance.Indice.Add(nuevo, Farmaco.CompararNombre);
+                        else
+                            Storage.Instance.SinExistencias.Add(nuevo, Farmaco.CompararNombre);
                     }
                 }
             }
             catch
             {
             }
-            return RedirectToAction("Index");
         }
 
-        [HttpPost]
-        public ActionResult GuardarArchivo(HttpPostedFileBase file)
+        public void GuardarArchivo()
         {
-            //try
-            //{
-            //// StreamWriter escritor = new StreamWriter(file.InputStream);
-            //    escritor.Flush();
-            //    escritor.Write(Storage.Instance.Farmacos);
-            //    escritor.Close();
-            //}
-            //catch
-            //{
-            //}
-            return RedirectToAction("Index");
+            try
+            {
+                using (StreamWriter escritor = new StreamWriter(Storage.Instance.dir, false))
+                {
+                    escritor.Write(Storage.Instance.Farmacos);
+                }
+            }
+            catch
+            {
+            }
         }
 
-        public void Sobreescribir(string[] text)
+        public void Sobreescribir()
         {
             Storage.Instance.Farmacos = "";
-            for (int i = 0; i < text.Length; i++)
+            for (int i = 0; i < Storage.Instance.ListadoFarmacos.Length; i++)
             {
-                if (text[i] != "")
+                if (Storage.Instance.ListadoFarmacos[i] != "")
                 {
-                    Storage.Instance.Farmacos += text[i];
-                    if (i != text.Length - 1)
+                    Storage.Instance.Farmacos += Storage.Instance.ListadoFarmacos[i];
+                    if (i != Storage.Instance.ListadoFarmacos.Length - 1)
                         Storage.Instance.Farmacos += "\r\n";
                 }
             }
+            GuardarArchivo();
         }
     }
 }

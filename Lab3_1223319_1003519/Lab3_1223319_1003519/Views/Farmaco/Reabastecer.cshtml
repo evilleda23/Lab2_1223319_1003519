@@ -4,14 +4,8 @@
     ViewBag.Title = "Index";
 }
 
-<h2>Tu salud en mis manos</h2>
-
-@using (Html.BeginForm())
-{
-    <input type="text" class="form-control" name="search" placeholder="Buscar farmaco" />
-    <button type="submit">Buscar</button>
-}
-
+<h2>Reabastecer fármacos</h2>
+<br />
 <table class="table">
     <tr>
         <th>
@@ -39,11 +33,11 @@
                 @Html.DisplayFor(modelItem => item.Cantidad)
             </td>
             <td>
-                @Html.ActionLink("Agregar al carrito", "AgregarProducto", new { id = item.ID })
+                @Html.ActionLink("Reabastecer", "Reabastecer", new { id = item.ID })
             </td>
         </tr>
     }
 
 </table>
 <br />
-<input type="button" value="Reabastecer fármacos" onclick="location.href='@Url.Action("MostrarReabastecer", "Farmaco")'" />
+@Html.ActionLink("Volver al inicio", "Index")
