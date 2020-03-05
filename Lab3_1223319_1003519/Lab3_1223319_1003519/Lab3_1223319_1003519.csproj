@@ -129,6 +129,7 @@
     <Compile Include="Models\Farmaco.cs" />
     <Compile Include="Models\InfoFarmaco.cs" />
     <Compile Include="Models\Pedido.cs" />
+    <Compile Include="Models\SubirArchivo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -172,6 +173,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Temp\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />

@@ -15,11 +15,7 @@ namespace Lab3_1223319_1003519.Controllers
         // GET: Farmaco
         public ActionResult Index()
         {
-            //if (Storage.Instance.PrimeraSesion)
-            //{
-            //    CargarArchivo();
-            //    Storage.Instance.PrimeraSesion = false;
-            //}
+            validacion();
             return View(Storage.Instance.Indice);
         }
 
@@ -34,6 +30,21 @@ namespace Lab3_1223319_1003519.Controllers
             };
             return View(resultados);
 
+        }
+
+        public void validacion()
+        {
+            IEnumerator<Farmaco> Farmacos = Storage.Instance.Indice.GetEnumerator();
+          //  Farmacos.Reset();
+            while (Farmacos.MoveNext())
+            {
+               if( Farmacos.Current.Existencia == 0)
+                {
+                    Storage.Instance.Indice.Delete(Farmacos.Current, Farmaco.CompararNombre);
+                }
+            }
+
+            Storage.Instance.PrimeraSesion = true;
         }
 
         // GET: Farmaco/Details/5
@@ -229,6 +240,12 @@ namespace Lab3_1223319_1003519.Controllers
                         };
                         texto[i] = texto[i].Remove(0, texto[i].IndexOf(";") + 1);
                         nuevo.Nombre = texto[i].Substring(0, texto[i].IndexOf(";"));
+                         while (texto[i].Contains(";"))
+                        {
+                            
+                            texto[i] = texto[i].Remove(0, texto[i].IndexOf(";") + 1);
+                        }
+                        nuevo.Existencia = Int32.Parse(texto[i]);
                         Storage.Instance.Indice.Add(nuevo, Farmaco.CompararNombre);
                     }
                 }
@@ -239,21 +256,29 @@ namespace Lab3_1223319_1003519.Controllers
             return RedirectToAction("Index");
         }
 
+        public ActionResult SubirArchivo()
+        {
+            
+            return RedirectToAction("Index");
+        }
         [HttpPost]
         public ActionResult GuardarArchivo(HttpPostedFileBase file)
         {
-            //try
-            //{
-            //// StreamWriter escritor = new StreamWriter(file.InputStream);
-            //    escritor.Flush();
-            //    escritor.Write(Storage.Instance.Farmacos);
-            //    escritor.Close();
-            //}
-            //catch
-            //{
-            //}
+
+           // SubirArchivo subir = new SubirArchivo();
+           //if(file != null)
+           // {
+           //     String ruta = Server.MapPath("~/Temp/");
+           //     ruta += file.FileName;
+           //     subir.SubirAr(ruta, file);
+           // }
+
+           // ViewBag.Error = subir.Error;
+           // ViewBag.Correcto = subir.Confirmacion;
             return RedirectToAction("Index");
         }
+
+       
 
         public void Sobreescribir(string[] text)
         {

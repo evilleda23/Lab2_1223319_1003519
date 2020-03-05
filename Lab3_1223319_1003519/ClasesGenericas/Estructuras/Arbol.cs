@@ -189,7 +189,7 @@ namespace ClasesGenericas.Estructuras
         public void Clear()
         {
             Raiz = null;
-            Count = 0;
+            Count = 0;  
         }
 
         private void Inorden(Nodo<T> position, List<T> recorrido)
