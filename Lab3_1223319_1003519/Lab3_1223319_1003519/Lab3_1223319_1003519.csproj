@@ -128,7 +128,6 @@
     <Compile Include="Helpers\Storage.cs" />
     <Compile Include="Models\Farmaco.cs" />
     <Compile Include="Models\InfoFarmaco.cs" />
-    <Compile Include="Models\Pedido.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -171,6 +170,7 @@
     <Content Include="Views\Farmaco\Reabastecer.cshtml" />
     <Content Include="Views\Farmaco\Resultados.cshtml" />
     <Content Include="Views\Farmaco\AgregarProducto.cshtml" />
+    <Content Include="Views\Farmaco\Pedido.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

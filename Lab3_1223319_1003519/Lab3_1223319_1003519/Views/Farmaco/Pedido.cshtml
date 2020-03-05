@@ -1,0 +1,48 @@
+﻿@model IEnumerable<Lab3_1223319_1003519.Models.Farmaco>
+
+@{
+    ViewBag.Title = "Pedido";
+}
+
+<h2>Realizar Pedido</h2>
+
+<h4>Productos</h4>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Nombre)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Cantidad)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Nombre)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Cantidad)
+            </td>
+            <td>
+                @Html.ActionLink("Delete", "Delete", new { id = item.ID })
+            </td>
+        </tr>
+    }
+
+</table>
+<br />
+<h4>Insertar Datos</h4>
+@using (Html.BeginForm("NuevoPedido",
+                        "Farmaco",
+                        FormMethod.Post,
+                        new { enctype = "multipart/form-data" }))
+{
+    <p>Nombre: </p><input type="text" class="form-control" name="name" placeholder="Nombre" />
+    <p>Direccion: </p><input type="text" class="form-control" name="direction" placeholder="Direccion" />
+    <p>Nit: </p><input type="text" class="form-control" name="nit" placeholder="Direccion" />
+    <button type="submit">Realizar Pedido</button>
+}

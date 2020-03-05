@@ -127,49 +127,58 @@ namespace Lab3_1223319_1003519.Controllers
             };
             return View("AgregarProducto", nuevo);
         }
+
         [HttpPost]
         public ActionResult AgregarProducto(int id, FormCollection collection)
         {
-            int cant = int.Parse(collection["cant"]);
-            double total = 0;
-            InfoFarmaco nuevo = new InfoFarmaco();
-            using (FileStream archivo = new FileStream("C://Users//estua//source//repos//Esjosev25//Lab2_1223319_1003519//Lab3_1223319_1003519//Farmacoss.csv", FileMode.Open))
+            int cant = Int32.Parse(collection["cant"]);
+            Farmaco nuevo = new Farmaco();
+            string texto = Storage.Instance.ListadoFarmacos[id - 1];
+            nuevo.ID = Int32.Parse(texto.Substring(0, texto.IndexOf(";")));
+            texto = texto.Remove(0, texto.IndexOf(";") + 1);
+            nuevo.Nombre = texto.Substring(0, texto.IndexOf(";"));
+            while (texto.IndexOf(';') >= 0)
             {
+                texto = texto.Remove(0, texto.IndexOf(';') + 1);
+            }
+            nuevo.Cantidad = int.Parse(texto);
+            if (cant <= nuevo.Cantidad)
+            {
+                nuevo.Cantidad = cant;
+                Storage.Instance.Pedidos.Add(nuevo);
+            }
+            return RedirectToAction("Index");
+        }
 
-                using (StreamReader lector = new StreamReader(archivo))
+        public ActionResult NuevoPedido()
+        {
+            return View("Pedido", Storage.Instance.Pedidos);
+        }
+
+        [HttpPost]
+        public ActionResult NuevoPedido(FormCollection collection)
+        {
+            foreach (Farmaco producto in Storage.Instance.Pedidos)
+            {
+                Farmaco aux = Storage.Instance.Indice.Search(producto, Farmaco.CompararNombre);
+                aux.Cantidad -= producto.Cantidad;
+                string temporal = Storage.Instance.ListadoFarmacos[aux.ID - 1];
+                while (Storage.Instance.ListadoFarmacos[aux.ID - 1].IndexOf(';') >= 0)
                 {
-                    while (!lector.EndOfStream)
-                    {
-                        string texto = lector.ReadLine();
-                        if (id == Int32.Parse(texto.Substring(0, texto.IndexOf(";"))))
-                        {
-
-
-                            nuevo.ID = Int32.Parse(texto.Substring(0, texto.IndexOf(";")));
-                            texto = texto.Remove(0, texto.IndexOf(";") + 1);
-                            nuevo.Nombre = texto.Substring(0, texto.IndexOf(";"));
-                            texto = texto.Remove(0, texto.IndexOf(";") + 1);
-                            nuevo.Descripcion = texto.Substring(0, texto.IndexOf(";"));
-                            texto = texto.Remove(0, texto.IndexOf(";") + 1);
-                            nuevo.Productora = texto.Substring(0, texto.IndexOf(";"));
-                            texto = texto.Remove(0, texto.IndexOf(";") + 1);
-                            nuevo.Precio = double.Parse(texto.Substring(0, texto.IndexOf(";")));
-                            texto = texto.Remove(0, texto.IndexOf(";") + 1);
-                            nuevo.Existencia = int.Parse(texto);
-                          
-
-                        }
-                        
-
-                    };
-
-                    
+                    temporal += Storage.Instance.ListadoFarmacos[aux.ID - 1].Substring(0, Storage.Instance.ListadoFarmacos[aux.ID - 1].IndexOf(';') + 1);
+                    Storage.Instance.ListadoFarmacos[aux.ID - 1] = Storage.Instance.ListadoFarmacos[aux.ID - 1].Remove(0, Storage.Instance.ListadoFarmacos[aux.ID - 1].IndexOf(';') + 1);
+                }
+                Storage.Instance.ListadoFarmacos[aux.ID - 1] = temporal;
+                Storage.Instance.ListadoFarmacos[aux.ID - 1] += aux.Cantidad.ToString();
+                Sobreescribir();
+                if (aux.Cantidad == 0)
+                {
+                    Storage.Instance.Indice.Delete(aux, Farmaco.CompararNombre);
+                    Storage.Instance.SinExistencias.Add(aux, Farmaco.CompararNombre);
                 }
             }
-            if (cant < nuevo.Existencia)
-                nuevo.Existencia -= cant;
-            total = nuevo.Precio * cant;
-            return View("Pedido");
+            Storage.Instance.Pedidos.Clear();
+            return RedirectToAction("Index");
         }
 
         public ActionResult MostrarReabastecer()
